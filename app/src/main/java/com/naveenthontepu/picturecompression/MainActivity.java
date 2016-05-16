@@ -1,9 +1,11 @@
 package com.naveenthontepu.picturecompression;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     ImageView scalledImage;
     @Bind(R.id.actual)
     ImageView actual;
+    @Bind(R.id.convertPhoto)
+    Button convertPhoto;
+    private ByteArrayOutputStream finalOutputStream;
 
 
     @Override
@@ -61,6 +66,30 @@ public class MainActivity extends AppCompatActivity {
     public void onClick() {
         document = 1;
         captureImage();
+    }
+    @OnClick(R.id.convertPhoto)
+    public void convertPhoto() {
+        if (finalOutputStream!=null) {
+            Bitmap image = BitmapFactory.decodeByteArray(finalOutputStream.toByteArray(),0,finalOutputStream.size());
+            Bitmap duplicateImage = image.copy(Bitmap.Config.ARGB_8888,true);
+            int i,j;
+            for (i=0;i<image.getHeight();i++){
+                for (j=0;j<image.getWidth();j++){
+                    int tempPixel = image.getPixel(j,i);
+                    int tempRed= Color.red(tempPixel);
+                    int tempGreen = Color.green(tempPixel);
+                    int tempBlue = Color.blue(tempPixel);
+//                    printLog("temp variables = "+tempBlue+"  "+tempGreen+"  "+tempRed);
+                    int avg = (tempRed+tempGreen+tempBlue)/3;
+//                    printLog("avg = "+avg);
+                    duplicateImage.setPixel(j,i,Color.argb(255,avg,avg,avg));
+                }
+            }
+            actual.setImageBitmap(duplicateImage);
+        }else {
+            captureImage();
+            convertPhoto();
+        }
     }
 
     private void captureImage() {
@@ -131,10 +160,10 @@ public class MainActivity extends AppCompatActivity {
                 original.compress(Bitmap.CompressFormat.JPEG, 80, out);
                 scaled.compress(Bitmap.CompressFormat.JPEG, 80, out1);
             }
-            ByteArrayOutputStream finalOutputStream = getCompressedImage(original);
+            finalOutputStream = getCompressedImage(original);
             Bitmap scalledCompressed = BitmapFactory.decodeByteArray(finalOutputStream.toByteArray(), 0, finalOutputStream.size());
             scalledImage.setImageBitmap(scalledCompressed);
-            printLog("the finalOutputStream size = "+finalOutputStream.size());
+            printLog("the finalOutputStream size = " + finalOutputStream.size());
             printSize(original, "original");
             printSize(scaled, "scaled");
             printLog("the height of scaled = " + scaled.getHeight());
@@ -147,32 +176,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private ByteArrayOutputStream getCompressedWithConstant(Bitmap orginal){
+    private ByteArrayOutputStream getCompressedWithConstant(Bitmap orginal) {
         float maxHeight = 800.0f;
         float maxWidth = 600.0f;
         int actualHeight = orginal.getHeight();
         int actualWidth = orginal.getWidth();
-        float originalRatio = orginal.getHeight()/orginal.getWidth();
-        float tempRatio = maxHeight/maxWidth;
-        if (actualHeight>maxHeight||actualWidth>maxWidth){
+        float originalRatio = orginal.getHeight() / orginal.getWidth();
+        float tempRatio = maxHeight / maxWidth;
+        if (actualHeight > maxHeight || actualWidth > maxWidth) {
 
         }
 
         return null;
     }
 
-    private ByteArrayOutputStream getCompressedImage(Bitmap orginal){
+    private ByteArrayOutputStream getCompressedImage(Bitmap orginal) {
         int scale = 2;
         ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-        while (true){
-            Bitmap scaled = Bitmap.createScaledBitmap(orginal,orginal.getWidth()/scale,orginal.getHeight()/scale,false);
-            if (scaled!=null){
-                scaled.compress(Bitmap.CompressFormat.JPEG,80,byteArrayOut);
-                printLog("the compressed image with scale "+scale+" = "+byteArrayOut.size());
-                if (byteArrayOut.size()<102400){
+        while (true) {
+            Bitmap scaled = Bitmap.createScaledBitmap(orginal, orginal.getWidth() / scale, orginal.getHeight() / scale, false);
+            if (scaled != null) {
+                scaled.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOut);
+                printLog("the compressed image with scale " + scale + " = " + byteArrayOut.size());
+                if (byteArrayOut.size() < 102400) {
                     break;
                 }
-                scale+=1;
+                scale += 1;
                 byteArrayOut.reset();
             }
         }

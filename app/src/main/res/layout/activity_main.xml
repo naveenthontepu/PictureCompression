@@ -50,12 +50,20 @@
                 android:id="@+id/scaled"
                 android:layout_centerHorizontal="true"
                 android:layout_below="@+id/rider_photo_card"/>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Convert Photo"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/scaled"
+                android:id="@+id/convertPhoto"
+                style="@style/signInRegisterButtons"/>
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/actual"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@+id/scaled"/>
+                android:layout_below="@+id/convertPhoto"/>
         </RelativeLayout>
 
     </ScrollView>
